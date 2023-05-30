@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Text;
 
 namespace ScoreClient
 {
@@ -9,24 +10,27 @@ namespace ScoreClient
         {
             HttpClient client = new();
             client.DefaultRequestHeaders.Accept.Clear();
-            // client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
-            client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
-            await ProcessRepositoriesAsync(client);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            // client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+            client.DefaultRequestHeaders.Add("User-Agent", "Score Client App");
+            await GetScoresAsync(client);
         }
 
-        private static async Task ProcessRepositoriesAsync(HttpClient client)
+        private static async Task GetScoresAsync(HttpClient client)
         {
-            // var json = await client.GetStringAsync("https://api.github.com/orgs/dotnet/repos");
-            // Console.Write(json);
 
-            await using Stream stream = await client.GetStreamAsync("https://api.github.com/orgs/dotnet/repos");
-            var repositories = await JsonSerializer.DeserializeAsync<List<Repository>>(stream);
-            foreach (var repo in repositories ?? Enumerable.Empty<Repository>())
+            var url = "http://localhost:8000";
+            var path = "/scores";
+            var requestEndPoint = url + path;
+
+            await using Stream stream = await client.GetStreamAsync(requestEndPoint);
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+
+            var repositories = await JsonSerializer.DeserializeAsync<List<ScoreResponse>>(stream);
+            foreach (var repo in repositories ?? Enumerable.Empty<ScoreResponse>())
             {
-                Console.Write(repo.name);
+                Console.Write($"{repo.Id} {repo.Username} {repo.Value}");
             }
-
         }
     }
 }
