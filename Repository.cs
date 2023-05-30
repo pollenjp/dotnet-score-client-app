@@ -9,4 +9,9 @@ namespace ScoreClient
         [property: JsonPropertyName("username")] string Username,
         [property: JsonPropertyName("value")] int Value
     );
+
+    public record class ScoreRequest(
+        [property: JsonPropertyName("username")] string Username,
+        [property: JsonPropertyName("value")] int Value
+    );
 }
